@@ -1,4 +1,4 @@
-import { NotFoundError } from '../errors';
+import { BadRequestError, NotFoundError } from '../errors';
 import { validateRequest } from '../middlewares';
 import express, { Request, Response } from 'express';
 import { Sale } from '../models/sale';
@@ -21,6 +21,10 @@ router.post(
   validateRequest,
   async (req: Request, res: Response) => {
     const { productId } = req.body;
+    const product = await Product.findById(productId);
+    if (!product) {
+      throw new BadRequestError('Product cannot be found');
+    }
     const sale = Sale.build({ productId });
     await sale.save();
     res.status(201).send(sale);
